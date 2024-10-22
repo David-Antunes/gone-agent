@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"github.com/David-Antunes/gone-agent/internal/api"
 	"github.com/David-Antunes/gone-agent/internal/programs"
@@ -50,6 +51,8 @@ func NewServer(port string) *Server {
 	m.HandleFunc("/register", s.register)
 	m.HandleFunc("/start", s.start)
 	m.HandleFunc("/stop", s.stop)
+	m.HandleFunc("/shutdown", s.shutdown)
+	m.HandleFunc("/exit", s.exit)
 
 	s.server = http.Server{
 		Handler: m,
@@ -206,14 +209,6 @@ func (s *Server) Broadcast(path string) {
 	}
 }
 
-func (s *Server) BroadcastStart() {
-	s.Broadcast("/start")
-}
-
-func (s *Server) BroadcastStop() {
-	s.Broadcast("/stop")
-}
-
 func (s *Server) clearNS() {
 	shell := exec.Command("docker", "unpause", "$(docker ps --filter \"network="+viper.GetString("NETWORK_NAMESPACE")+"\")")
 
@@ -279,5 +274,42 @@ func (s *Server) contactPrimary(primary string, ip string) {
 			panic(err)
 		}
 	}
+
+}
+
+func (s *Server) BroadcastStart() {
+	s.Broadcast("/start")
+}
+func (s *Server) BroadcastStop() {
+	s.Broadcast("/stop")
+}
+func (s *Server) BroadcastExit() {
+	s.Broadcast("/exit")
+}
+
+func (s *Server) exit(w http.ResponseWriter, r *http.Request) {
+	s.server.Shutdown(context.Background())
+}
+
+func (s *Server) shutdown(w http.ResponseWriter, r *http.Request) {
+
+	s.BroadcastStop()
+
+	if err := s.gone.Stop(); err != nil {
+		serverLog.Println(err)
+	}
+	if err := s.goneProxy.Stop(); err != nil {
+		serverLog.Println(err)
+	}
+	if err := s.goneRTT.Stop(); err != nil {
+		serverLog.Println(err)
+
+	}
+
+	s.BroadcastExit()
+
+	s.exit(nil, nil)
+
+	w.Write([]byte("Done"))
 
 }
