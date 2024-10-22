@@ -288,7 +288,10 @@ func (s *Server) BroadcastExit() {
 }
 
 func (s *Server) exit(w http.ResponseWriter, r *http.Request) {
-	s.server.Shutdown(context.Background())
+	go func() {
+		time.Sleep(time.Second)
+		s.server.Shutdown(context.Background())
+	}()
 }
 
 func (s *Server) shutdown(w http.ResponseWriter, r *http.Request) {
@@ -308,8 +311,10 @@ func (s *Server) shutdown(w http.ResponseWriter, r *http.Request) {
 
 	s.BroadcastExit()
 
-	s.exit(nil, nil)
-
 	w.Write([]byte("Done"))
 
+	go func() {
+		time.Sleep(time.Second)
+		s.exit(nil, nil)
+	}()
 }
