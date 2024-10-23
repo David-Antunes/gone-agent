@@ -26,7 +26,7 @@ func setEnvVariables() {
 	viper.SetDefault("NETWORK_NAMESPACE", "gone_net")
 	viper.SetDefault("GONE_ID", "gone")
 	viper.SetDefault("GONE_PROXY_ID", "proxy-gone")
-	viper.SetDefault("GONE_RTT_ID", "gone-rtt")
+	viper.SetDefault("GONE_RTT_ID", "rtt-gone")
 	viper.SetDefault("GONE_IMAGE", "gone")
 	viper.SetDefault("GONE_PROXY_IMAGE", "gone-proxy")
 	viper.SetDefault("GONE_RTT_IMAGE", "gone-rtt")
