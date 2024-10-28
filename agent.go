@@ -31,10 +31,10 @@ func setEnvVariables() {
 	viper.SetDefault("GONE_PROXY_IMAGE", "gone-proxy")
 	viper.SetDefault("GONE_RTT_IMAGE", "gone-rtt")
 	viper.SetConfigType("env")
-	err := viper.WriteConfig()
-	if err != nil {
-		agentLog.Println(err)
-	}
+	//err := viper.WriteConfig()
+	//if err != nil {
+	//	agentLog.Println(err)
+	//}
 }
 
 func printVariables(v *viper.Viper) {
@@ -55,6 +55,7 @@ func printVariables(v *viper.Viper) {
 func main() {
 
 	setEnvVariables()
+	viper.AutomaticEnv()
 	printVariables(viper.GetViper())
 	validateEnvironment()
 
