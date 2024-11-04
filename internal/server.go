@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/David-Antunes/gone-agent/internal/api"
 	"github.com/David-Antunes/gone-agent/internal/programs"
 	"github.com/spf13/viper"
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"time"
 )
@@ -100,9 +102,12 @@ func (s *Server) restart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.clearNS()
+
+	time.Sleep(time.Second)
 	if err := s.goneRTT.Start(); err != nil {
 		serverLog.Println(err)
 	}
+	time.Sleep(time.Second)
 	if err := s.goneProxy.Start(); err != nil {
 		serverLog.Println(err)
 	}
@@ -210,23 +215,61 @@ func (s *Server) Broadcast(path string) {
 }
 
 func (s *Server) clearNS() {
-	shell := exec.Command("docker", "unpause", "$(docker ps --filter \"network="+viper.GetString("NETWORK_NAMESPACE")+"\")")
+	shell := exec.Command("docker", "ps", "-q", "--filter", "network="+viper.GetString("NETWORK_NAMESPACE"))
+	output, err := shell.Output()
 
-	if _, err := shell.Output(); err != nil {
-		//serverLog.Println(err)
+	if err != nil {
+		fmt.Println("test", err)
 	}
 
-	shell = exec.Command("docker", "kill", "$(docker ps -q --filter \"network="+viper.GetString("NETWORK_NAMESPACE")+"\")")
+	o := append([]string{"unpause"}, strings.Split(string(output), "\n")...)
+	shell = exec.Command(
+		"docker",
+		o...,
+	)
 
-	if _, err := shell.Output(); err != nil {
-		//serverLog.Println(err)
+	shell.Stdout = os.Stdout
+	shell.Stderr = os.Stderr
+	err = shell.Run()
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	shell = exec.Command("docker", "rm", "$(docker ps -q --filter \"network="+viper.GetString("NETWORK_NAMESPACE")+"\")")
+	//if err != nil {
+	//	serverLog.Println(err)
+	//} else {
+	//	serverLog.Println(string(out))
+	//}
 
-	if _, err := shell.Output(); err != nil {
-		//serverLog.Println(err)
-	}
+	o = append([]string{"kill"}, strings.Split(string(output), "\n")...)
+	shell = exec.Command("docker", o...)
+
+	shell.Stdout = os.Stdout
+	shell.Stderr = os.Stderr
+	shell.Run()
+	//fmt.Println(b.String())
+	//out, err = shell.Output()
+
+	//if err != nil {
+	//	serverLog.Println(err)
+	//} else {
+	//	serverLog.Println(string(out))
+	//}
+
+	o = append([]string{"rm"}, strings.Split(string(output), "\n")...)
+	shell = exec.Command("docker", o...)
+
+	shell.Stdout = os.Stdout
+	shell.Stderr = os.Stderr
+	shell.Run()
+	//out, err = shell.Output()
+	//
+	//if err != nil {
+	//	serverLog.Println(err)
+	//} else {
+	//	serverLog.Println(string(out))
+	//}
+	shell.Wait()
 }
 
 func (s *Server) contactPrimary(primary string, ip string) {
