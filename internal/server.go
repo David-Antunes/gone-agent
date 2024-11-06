@@ -351,7 +351,7 @@ func (s *Server) shutdown(w http.ResponseWriter, r *http.Request) {
 		serverLog.Println(err)
 
 	}
-
+	s.clearNS()
 	s.BroadcastExit()
 
 	w.Write([]byte("Done"))
