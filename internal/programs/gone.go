@@ -1,5 +1,4 @@
 package programs
-
 import (
 	"bytes"
 	"fmt"
@@ -31,6 +30,7 @@ func (g *Gone) Start() error {
 		"-p", g.Conf.GetString("SERVER_PORT")+":"+g.Conf.GetString("SERVER_PORT"),
 		"-p", g.Conf.GetString("SERVER_ROUTE_PORT")+":"+g.Conf.GetString("SERVER_ROUTE_PORT"),
 		"-v", "/tmp:/tmp",
+		"--network", "host",
 		"-v", "/var/run/docker:/var/run/docker",
 		"-v", "/var/run/docker.sock:/var/run/docker.sock",
 		"-v", "/proc:/proc",
