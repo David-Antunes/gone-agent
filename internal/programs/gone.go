@@ -27,8 +27,8 @@ func (g *Gone) Start() error {
 
 	shell := exec.Command("docker", "run", "-d", "--privileged",
 		"--name", g.Conf.GetString("GONE_ID"),
-		"-p", g.Conf.GetString("SERVER_PORT")+":"+g.Conf.GetString("SERVER_PORT"),
-		"-p", g.Conf.GetString("SERVER_ROUTE_PORT")+":"+g.Conf.GetString("SERVER_ROUTE_PORT"),
+//		"-p", g.Conf.GetString("SERVER_PORT")+":"+g.Conf.GetString("SERVER_PORT"),
+//		"-p", g.Conf.GetString("SERVER_ROUTE_PORT")+":"+g.Conf.GetString("SERVER_ROUTE_PORT"),
 		"-v", "/tmp:/tmp",
 		"--network", "host",
 		"-v", "/var/run/docker:/var/run/docker",

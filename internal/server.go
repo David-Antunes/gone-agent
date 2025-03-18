@@ -103,15 +103,15 @@ func (s *Server) restart(w http.ResponseWriter, r *http.Request) {
 
 	s.clearNS()
 
-	//time.Sleep(time.Second)
+	time.Sleep(time.Second)
 	if err := s.goneRTT.Start(); err != nil {
 		serverLog.Println(err)
 	}
-	//time.Sleep(time.Second)
+	time.Sleep(time.Second)
 	if err := s.goneProxy.Start(); err != nil {
 		serverLog.Println(err)
 	}
-	//time.Sleep(time.Second)
+	time.Sleep(time.Second)
 	if err := s.gone.Start(); err != nil {
 		serverLog.Println(err)
 	}
